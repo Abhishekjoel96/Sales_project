@@ -1,5 +1,5 @@
 // backend/src/services/leadService.ts
-import { createLead, deleteLead, getLeadById, getLeads, updateLead, Lead, getLeadByPhoneNumber, getLeadByEmail } from '../models/Lead';
+import { createLead, deleteLead, getLeadById, getLeads, updateLead, Lead, getLeadByPhoneNumber, getLeadByEmail } from '../models/Lead'; //EXPORT
 import { createMessage } from '../models/Message';
 
 export const createNewLead = async (leadData: Omit<Lead, 'id' | 'created_at' | 'updated_at'>): Promise<Lead> => {
@@ -30,13 +30,9 @@ export const updateLeadStatusBasedOnInteraction = async (leadId: string, channel
             await updateLead(leadId, { status: 'Warm' });
         }
     }
-    // Further logic can be added here, e.g., checking for keywords to move to 'Hot'
+    // Further logic can be added here
 };
 
-export const getLeadByPhone = async(phoneNumber: string): Promise<Lead | null> => {
-  return getLeadByPhoneNumber(phoneNumber);
-}
-
-export const getLeadByMail = async(email:string): Promise<Lead | null> => {
-  return getLeadByEmail(email);
-}
+// ADDED THESE EXPORTS!
+export const getLeadByPhone = getLeadByPhoneNumber;
+export const getLeadByMail = getLeadByEmail;
