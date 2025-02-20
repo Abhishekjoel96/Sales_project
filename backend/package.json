@@ -1,0 +1,44 @@
+
+// package.json (Project Root)
+{
+  "name": "businessonai-backend",
+  "version": "1.0.0",
+  "description": "Backend for BusinessOn.ai",
+  "main": "dist/server.js",       // Relative to backend!
+  "scripts": {
+    "build": "tsc",              // Just run tsc
+    "start": "node dist/server.js",    // Relative to backend!
+    "dev": "ts-node-dev --respawn --transpile-only src/server.ts", // Relative to backend!
+    "migrate": "ts-node src/scripts/migrate.ts",                // Relative to backend!
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+     "@supabase/supabase-js": "^2.39.7",
+        "axios": "^1.6.7",
+        "body-parser": "^1.20.2",
+        "cors": "^2.8.5",
+        "date-fns": "^3.3.1",
+        "dotenv": "^16.4.1",
+        "express": "^4.18.2",
+        "express-rate-limit": "^7.2.0",
+        "form-data": "^4.0.0",
+        "joi": "^17.12.1",
+        "mailgun.js": "^10.1.0",
+        "node-fetch": "^3.3.2",
+        "openai": "^4.28.0",
+        "socket.io": "^4.7.4",
+        "twilio": "^4.22.0",
+        "winston": "^3.11.0"
+  },
+  "devDependencies": {
+        "@types/cors": "^2.8.17",
+        "@types/express": "^4.17.21",
+        "@types/node": "^20.11.17",
+        "ts-node": "^10.9.2",
+        "ts-node-dev": "^2.0.0",
+        "typescript": "^5.3.3"
+  }
+}
