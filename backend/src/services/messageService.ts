@@ -1,4 +1,3 @@
-
 // backend/src/services/messageService.ts
 import twilioService from './twilioService';
 import mailgunService from './mailgunService';
@@ -55,7 +54,7 @@ export const receiveMessage = async (leadId: string, channel: 'WhatsApp' | 'SMS'
 
       if (isOutOfOffice()) {
         // Handle out-of-office scenario.
-        const outOfOfficeMessage = "Thank you for your message. We are currently out of the office and will respond to you as soon as possible.";
+        const outOfOfficeMessage = "Thank you for your message.  We are currently out of the office and will respond to you as soon as possible.";
         await sendMessage(leadId, channel, outOfOfficeMessage);
         const messageData: Omit<Message, 'id' | 'timestamp'> = { //Explicit type
           lead_id: leadId,
@@ -89,7 +88,7 @@ export const receiveMessage = async (leadId: string, channel: 'WhatsApp' | 'SMS'
       // Create conversation history for RAG
       const conversationHistory = await getMessagesByChannelAndLeadId(leadId, channel);
 
-      const messages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [ //Corrected type
+      const messages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [
         {role: "system", content: systemMessage},
         ...conversationHistory.map(msg => ({
           role: msg.direction === 'Inbound' ? "user" : "assistant",
