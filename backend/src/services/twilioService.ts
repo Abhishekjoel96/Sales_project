@@ -33,7 +33,7 @@ class TwilioService {
       });
 
       // Create a call log entry
-      const callLogData = {
+      const callLogData: Omit<CallLog, 'id' | 'timestamp'> = { // Explicit type
         lead_id: leadId,
         twilio_call_sid: call.sid,
         status: 'initiated', // Initial status
