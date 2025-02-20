@@ -1,4 +1,3 @@
-// backend/src/controllers/messageController.ts
 import { Request, Response, NextFunction } from 'express';
 import * as messageService from '../services/messageService';
 import logger from '../utils/logger';
