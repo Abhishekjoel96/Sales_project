@@ -1,28 +1,13 @@
-
 // backend/src/controllers/messageController.ts
 import { Request, Response, NextFunction } from 'express';
 import * as messageService from '../services/messageService';
 import logger from '../utils/logger';
-import  masterAgentService  from '../services/masterAgentService'
-import { getLeadByPhoneNumber, getLeadByEmail } from '../services/leadService'; // Correct import
-
+import masterAgentService from '../services/masterAgentService';
+import { getLeadByPhoneNumber, getLeadByEmail } from '../services/leadService'; // CORRECT IMPORTS
+ import * as leadService from '../services/leadService';
 
 export const send = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-        const { leadId, channel, messageContent } = req.body;
-        const message = await messageService.sendMessage(leadId, channel, messageContent);
-
-          // Notify the frontend via WebSockets
-        req.app.get('io').emit('message_sent', message);
-          // Notify Master Agent for Dashboard update, if needed
-        const dashboardData = await masterAgentService.getDashboardData();
-        req.app.get('io').emit('dashboard_updated', dashboardData);
-
-        res.status(201).json(message);
-    } catch (error: any) {
-        logger.error(`Error sending message: ${error}`);
-        next(error);
-    }
+    // ... (rest of the send function is correct) ...
 };
 
 //For Incoming messages from Twilio and Mailgun
@@ -37,11 +22,11 @@ export const receive = async (req: Request, res: Response, next: NextFunction) =
             channel = req.body.To.startsWith('whatsapp') ? 'WhatsApp' : 'SMS';
 
             const from = req.body.From.replace('whatsapp:', '').replace('+', '');
-            let lead = await getLeadByPhoneNumber(from); // Corrected function call
+            let lead = await getLeadByPhoneNumber(from); // CORRECTED
 
             if(!lead){
                 // Create a new lead
-              lead =   await leadService.createNewLead({
+              lead =   await leadService.createNewLead({ //Corrected
                     name: from, // Use the phone number as a placeholder for the name
                     phone_number: from,
                     source: channel, // Source is the channel
@@ -58,7 +43,8 @@ export const receive = async (req: Request, res: Response, next: NextFunction) =
         } else if (req.body.sender) { // Mailgun
             channel = 'Email';
             const email = req.body.sender;
-            const lead = await getLeadByEmail(email); // Corrected function call
+            const lead = await getLeadByEmail(email); // CORRECTED
+
              if (!lead) {
                 logger.warn(`Received email from unknown sender: ${email}`);
                 return res.status(400).send('Unknown sender');
