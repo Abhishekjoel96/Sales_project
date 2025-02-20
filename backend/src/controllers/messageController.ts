@@ -4,6 +4,7 @@ import * as messageService from '../services/messageService';
 import logger from '../utils/logger';
 import  masterAgentService  from '../services/masterAgentService'
 import { getLeadByPhoneNumber, getLeadByEmail } from '../services/leadService'; // Correct import
+import * as leadService from '../services/leadService';
 
 
 export const send = async (req: Request, res: Response, next: NextFunction) => {
