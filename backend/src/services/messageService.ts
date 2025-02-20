@@ -1,4 +1,3 @@
-// backend/src/services/messageService.ts
 import twilioService from './twilioService';
 import mailgunService from './mailgunService';
 import { createMessage, getMessages, getMessageById, updateMessage, getMessagesByLeadId, getMessagesByChannelAndLeadId, Message } from '../models/Message';
