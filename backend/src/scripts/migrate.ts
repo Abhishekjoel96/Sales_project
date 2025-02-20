@@ -1,6 +1,8 @@
-// backend/src/scripts/migrate.ts
 import supabase from '../utils/db';
 import logger from '../utils/logger';
+import {Lead} from  '../models/Lead'
+import { CallLog } from '../models/CallLog';
+import { Appointment } from '../models/Appointment';
 
 const migrate = async () => {
   try {
