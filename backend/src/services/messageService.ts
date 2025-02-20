@@ -1,14 +1,15 @@
+
 // backend/src/services/messageService.ts
 import twilioService from './twilioService';
 import mailgunService from './mailgunService';
 import { createMessage, getMessages, getMessageById, updateMessage, getMessagesByLeadId, getMessagesByChannelAndLeadId, Message } from '../models/Message';
 import openaiService from './openaiService';
 import { getLeadById, updateLead } from '../models/Lead';
-import { createAppointment } from '../models/Appointment';  // Import appointment functions
+import { createAppointment } from '../models/Appointment';
 import logger from '../utils/logger';
 import { getAISettingsByChannel } from '../models/AISettings';
 import { isOutOfOffice } from '../utils/helpers';
-import { getLeadByPhoneNumber, getLeadByMail} from '../models/Lead'
+import { getLeadByPhoneNumber, getLeadByEmail} from '../models/Lead' //CORRECTED IMPORT
 import OpenAI from 'openai';
 
 export const sendMessage = async (leadId: string, channel: 'WhatsApp' | 'SMS' | 'Email', messageContent: string): Promise<Message> => {
@@ -27,15 +28,14 @@ export const sendMessage = async (leadId: string, channel: 'WhatsApp' | 'SMS' | 
                 message = await twilioService.sendSMS(lead.phone_number, messageContent, leadId);
                 break;
             case 'Email':
-                // Assuming you have a subject for the email.  You might want to
-                // generate this dynamically based on the context.
+                // Assuming you have a subject for the email.
                 const subject = "Regarding your inquiry with BusinessOn.ai";
                 message = await mailgunService.sendEmail(lead.email!, subject, messageContent);
                 break;
             default:
                 throw new Error('Invalid channel');
         }
-        const messageData = {
+        const messageData: Omit<Message, 'id' | 'timestamp'> = { // Explicit type
           lead_id: leadId,
           channel: channel,
           direction: 'Outbound', // Since we're sending the message
@@ -54,11 +54,10 @@ export const sendMessage = async (leadId: string, channel: 'WhatsApp' | 'SMS' | 
 export const receiveMessage = async (leadId: string, channel: 'WhatsApp' | 'SMS' | 'Email', messageContent: string): Promise<Message> => {
 
       if (isOutOfOffice()) {
-        // Handle out-of-office scenario.  Send an automated reply.
-        const outOfOfficeMessage = "Thank you for your message.  We are currently out of the office and will respond to you as soon as possible.";
-
+        // Handle out-of-office scenario.
+        const outOfOfficeMessage = "Thank you for your message. We are currently out of the office and will respond to you as soon as possible.";
         await sendMessage(leadId, channel, outOfOfficeMessage);
-        const messageData = {
+        const messageData: Omit<Message, 'id' | 'timestamp'> = { //Explicit type
           lead_id: leadId,
           channel: channel,
           direction: 'Inbound',
@@ -69,7 +68,7 @@ export const receiveMessage = async (leadId: string, channel: 'WhatsApp' | 'SMS'
 
     }
   // 1. Log the received message
-      const messageData = {
+      const messageData: Omit<Message, 'id' | 'timestamp'> = { // Explicit type
           lead_id: leadId,
           channel: channel,
           direction: 'Inbound',
@@ -90,7 +89,7 @@ export const receiveMessage = async (leadId: string, channel: 'WhatsApp' | 'SMS'
       // Create conversation history for RAG
       const conversationHistory = await getMessagesByChannelAndLeadId(leadId, channel);
 
-      const messages:OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [
+      const messages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [ //Corrected type
         {role: "system", content: systemMessage},
         ...conversationHistory.map(msg => ({
           role: msg.direction === 'Inbound' ? "user" : "assistant",
@@ -106,7 +105,7 @@ export const receiveMessage = async (leadId: string, channel: 'WhatsApp' | 'SMS'
 
      // 5. Check if the response indicates an appointment request
     if (aiResponse.toLowerCase().includes('book an appointment')) { // Add more robust checks here
-        // Extract appointment details (you'll need more sophisticated parsing here)
+        // Extract appointment details
         const appointmentRegex = /(\d{4}-\d{2}-\d{2})\s+(\d{2}:\d{2})/; // Example: 2024-03-15 10:30
         const match = aiResponse.match(appointmentRegex);
 
@@ -115,7 +114,7 @@ export const receiveMessage = async (leadId: string, channel: 'WhatsApp' | 'SMS'
             const timeStr = match[2];
             const dateTimeStr = `${dateStr}T${timeStr}:00`; //
 
-            const appointmentData = {
+            const appointmentData: Omit<Appointment, 'id' | 'created_at' | 'updated_at'> = { // Explicit type
                 lead_id: leadId,
                 date_time: dateTimeStr,
                 source: channel, // Source is the channel
