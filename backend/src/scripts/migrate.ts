@@ -1,4 +1,3 @@
-
 // backend/src/scripts/migrate.ts
 import supabase from '../utils/db';
 import logger from '../utils/logger';
