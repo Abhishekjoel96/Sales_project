@@ -4,7 +4,6 @@ import * as messageService from '../services/messageService';
 import logger from '../utils/logger';
 import  masterAgentService  from '../services/masterAgentService'
 import { getLeadByPhoneNumber, getLeadByEmail } from '../services/leadService'; // Correct import
-import * as leadService from '../services/leadService';
 
 
 export const send = async (req: Request, res: Response, next: NextFunction) => {
@@ -37,7 +36,7 @@ export const receive = async (req: Request, res: Response, next: NextFunction) =
             channel = req.body.To.startsWith('whatsapp') ? 'WhatsApp' : 'SMS';
 
             const from = req.body.From.replace('whatsapp:', '').replace('+', '');
-            let lead = await getLeadByPhoneNumber(from);
+            let lead = await getLeadByPhoneNumber(from); // Corrected function call
 
             if(!lead){
                 // Create a new lead
@@ -58,7 +57,7 @@ export const receive = async (req: Request, res: Response, next: NextFunction) =
         } else if (req.body.sender) { // Mailgun
             channel = 'Email';
             const email = req.body.sender;
-            const lead = await getLeadByEmail(email);
+            const lead = await getLeadByEmail(email); // Corrected function call
              if (!lead) {
                 logger.warn(`Received email from unknown sender: ${email}`);
                 return res.status(400).send('Unknown sender');
