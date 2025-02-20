@@ -4,11 +4,12 @@ import mailgunService from './mailgunService';
 import { createMessage, getMessages, getMessageById, updateMessage, getMessagesByLeadId, getMessagesByChannelAndLeadId, Message } from '../models/Message';
 import openaiService from './openaiService';
 import { getLeadById, updateLead } from '../models/Lead';
-import { createAppointment } from '../models/Appointment';
+import { createAppointment } from '../models/Appointment';  // Import appointment functions
 import logger from '../utils/logger';
 import { getAISettingsByChannel } from '../models/AISettings';
 import { isOutOfOffice } from '../utils/helpers';
 import { getLeadByPhoneNumber, getLeadByMail} from '../models/Lead'
+import OpenAI from 'openai';
 
 export const sendMessage = async (leadId: string, channel: 'WhatsApp' | 'SMS' | 'Email', messageContent: string): Promise<Message> => {
     const lead = await getLeadById(leadId);
