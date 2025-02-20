@@ -12,8 +12,17 @@ export const getTwiml = async (req: Request, res: Response, next: NextFunction) 
           return res.status(400).send('<Response><Say>Invalid language selection.</Say></Response>');
         }
 
-        const twimlResponse = await openaiService.generateContextForTwilio(language);
+        const twimlResponse = await openaiService.generateContextForTwilio(language as string);
 
         // Check if the response is valid TwiML (basic check)
         if(!twimlResponse?.includes("<Response>")){
-          throw
+          throw new Error("Invalid TwiML response from OpenAI");
+        }
+
+        res.type('text/xml');
+        res.status(200).send(twimlResponse);
+
+    } catch (error:any) {
+        next(error); // Pass errors to the error handling middleware
+    }
+};
