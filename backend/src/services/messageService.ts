@@ -88,14 +88,14 @@ export const receiveMessage = async (leadId: string, channel: 'WhatsApp' | 'SMS'
       // Create conversation history for RAG
       const conversationHistory = await getMessagesByChannelAndLeadId(leadId, channel);
 
-    const messages: OpenAI.Chat.ChatCompletionMessageParam[] = [  // Corrected type
-      { role: "system", content: systemMessage },
-      ...conversationHistory.map((msg) => ({
-        role: msg.direction === 'Inbound' ? "user" : "assistant",
-        content: msg.content,
-      })),
-      { role: "user", content: messageContent },
-    ];
+    const messages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [
+        {role: "system", content: systemMessage},
+        ...conversationHistory.map(msg => ({
+          role: msg.direction === 'Inbound' ? "user" : "assistant",
+          content: msg.content,
+        })),
+          {role: "user", content: messageContent} // The new incoming message
+      ];
 
     const aiResponse = await openaiService.generateChatResponse(messages, 'gpt-3.5-turbo');
 
