@@ -91,7 +91,7 @@ export const receiveMessage = async (leadId: string, channel: 'WhatsApp' | 'SMS'
     const messages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [
         {role: "system", content: systemMessage},
         ...conversationHistory.map(msg => ({
-          role: msg.direction === 'Inbound' ? "user" : "assistant",
+          role: msg.direction === 'Inbound' ? "user" as const : "assistant" as const, // Explicitly cast here
           content: msg.content,
         })),
           {role: "user", content: messageContent} // The new incoming message
