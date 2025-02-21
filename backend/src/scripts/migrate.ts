@@ -5,69 +5,83 @@ import logger from '../utils/logger';
 const migrate = async () => {
     try {
         // --- Leads Table ---
-        const { error: leadsError } = await supabase.schema.createTable('Leads', { ifNotExists:true })
-          if (leadsError) throw leadsError;
-
-          await supabase.from('Leads').upsert([
-            { id: '83667894-939a-42aa-ab75-74575f285766', name: 'John Smith', phone_number: '+15551234567', email: 'john.123@example.com', region: 'North America', source: 'Website', status: 'Hot', company: 'TechCorp Solutions', industry:'Technology' },
-            { id: '257c5c39-9a65-4499-a19b-54856a9f1b8f', name: 'Sarah Johnson', phone_number: '+15552345678', email: 'sarah.johnson@inovate.co', region: 'Europe', source: 'WhatsApp', status: 'Warm', company: 'Inovate Inc', industry: 'Healthcare' },
-            { id: '8b27a7b3-9f1a-4e2b-8c99-2d758a6f4e1c', name: 'Michael Brown', phone_number: '+15553456789', email: 'michael.456@global.net', region: 'Asia Pacific', source: 'SMS', status: 'Cold', company: 'Global Manufacturing Ltd', industry:'Manufacturing' },
-          ]);
-
-        logger.info('Created and Seeded Leads table');
+        const { error: leadsError } = await supabase.schema
+            .createTable('Leads', (table) => {
+                table.uuid('id').primaryKey().defaultTo(supabase.raw('uuid_generate_v4()'));
+                table.string('name').notNullable();
+                table.string('phone_number').notNullable();
+                table.string('email');
+                table.string('region');
+                table.string('source').notNullable();
+                table.enum('status', ['New', 'Cold', 'Warm', 'Hot']).defaultTo('New');
+                table.string('company');
+                table.string('industry');
+                table.timestamp('created_at').defaultTo(supabase.fn('now')());
+                table.timestamp('updated_at').defaultTo(supabase.fn('now')());
+            });
+        if (leadsError) throw leadsError;
+        logger.info('Created Leads table');
 
 
         // --- CallLogs Table ---
-
-        const { error: callLogsError } = await supabase.schema.createTable('CallLogs', { ifNotExists: true })
-          if (callLogsError) throw callLogsError;
-          await supabase.from('CallLogs')
-          .insert([
-            { lead_id: '83667894-939a-42aa-ab75-74575f285766', twilio_call_sid: 'CA1234567890abcdef', duration: 240, status: 'completed', recording_url: 'https://example.com/recording1.mp3', transcription: 'This is a sample transcription of the first call.', summary: 'Customer expressed strong interest.', direction: 'Outbound', timestamp: '2024-02-20T14:30:00Z' },
-            { lead_id: '257c5c39-9a65-4499-a19b-54856a9f1b8f', twilio_call_sid: 'CA0987654321fedcba', duration: 180, status: 'completed', recording_url: 'https://example.com/recording2.mp3', transcription: 'This is another example transcription.', summary: 'Customer requested a callback.', direction: 'Inbound', timestamp: '2024-02-20T16:00:00Z' },
-            { lead_id: '8b27a7b3-9f1a-4e2b-8c99-2d758a6f4e1c', twilio_call_sid: 'CAaabbccddeeff001122', status: 'failed', direction: 'Outbound', timestamp: '2024-02-21T09:15:00Z' },
-            ]);
-
-        logger.info('Created and Seeded CallLogs table');
+        const { error: callLogsError } = await supabase.schema
+            .createTable('CallLogs', (table) => {
+                table.uuid('id').primaryKey().defaultTo(supabase.raw('uuid_generate_v4()'));
+                table.uuid('lead_id').notNullable().references('id').inTable('Leads'); // Foreign key
+                table.string('twilio_call_sid').notNullable();
+                table.integer('duration');
+                table.enum('status', ['scheduled', 'initiated', 'ringing', 'in_progress', 'completed', 'failed', 'no_answer', 'busy']).notNullable();
+                table.string('recording_url');
+                table.text('transcription');
+                table.text('summary');
+                table.enum('direction', ['Inbound', 'Outbound']).notNullable();
+                table.timestamp('timestamp').defaultTo(supabase.fn('now')());
+            });
+        if (callLogsError) throw callLogsError;
+        logger.info('Created CallLogs table');
 
         // --- Appointments Table ---
-        const { error: appointmentsError } = await supabase.schema.createTable('Appointments', { ifNotExists: true });
+        const { error: appointmentsError } = await supabase.schema
+            .createTable('Appointments', (table) => {
+                table.uuid('id').primaryKey().defaultTo(supabase.raw('uuid_generate_v4()'));
+                table.uuid('lead_id').notNullable().references('id').inTable('Leads'); // Foreign Key
+                table.timestamp('date_time').notNullable();
+                table.string('source').notNullable();
+                table.enum('status', ['Scheduled', 'Completed', 'Cancelled']).defaultTo('Scheduled');
+                table.timestamp('created_at').defaultTo(supabase.fn('now')());
+                table.timestamp('updated_at').defaultTo(supabase.fn('now')());
+            });
 
-        if(appointmentsError) throw appointmentsError;
-        await supabase.from('Appointments')
-        .insert([
-          { lead_id: '83667894-939a-42aa-ab75-74575f285766', date_time: '2024-02-22T10:00:00Z', source: 'Call', status: 'Scheduled' },
-          { lead_id: '257c5c39-9a65-4499-a19b-54856a9f1b8f', date_time: '2024-02-23T14:00:00Z', source: 'WhatsApp', status: 'Scheduled' },
-          { lead_id: '8b27a7b3-9f1a-4e2b-8c99-2d758a6f4e1c', date_time: '2024-02-24T11:00:00Z', source: 'Call', status: 'Completed' },
-        ])
-        logger.info('Created and Seeded Appointments table');
+        if (appointmentsError) throw appointmentsError;
+        logger.info('Created Appointments table');
 
         // --- Messages Table ---
-        const { error: messagesError } = await supabase.schema.createTable('Messages', { ifNotExists: true });
+        const { error: messagesError } = await supabase.schema
+            .createTable('Messages', (table) => {
+                table.uuid('id').primaryKey().defaultTo(supabase.raw('uuid_generate_v4()'));
+                table.uuid('lead_id').notNullable().references('id').inTable('Leads'); // Foreign Key
+                table.enum('channel', ['WhatsApp', 'SMS', 'Email']).notNullable();
+                table.enum('direction', ['Inbound', 'Outbound']).notNullable();
+                table.text('content').notNullable();
+                table.timestamp('timestamp').defaultTo(supabase.fn('now')());
+            });
         if (messagesError) throw messagesError;
-
-        await supabase.from('Messages')
-        .insert([
-          { lead_id: '83667894-939a-42aa-ab75-74575f285766', channel: 'WhatsApp', direction: 'Outbound', content: 'Initial outreach message to John Smith.' },
-          { lead_id: '83667894-939a-42aa-ab75-74575f285766', channel: 'WhatsApp', direction: 'Inbound', content: 'Thanks for the information, I am available on the proposed date.' },
-          { lead_id: '257c5c39-9a65-4499-a19b-54856a9f1b8f', channel: 'SMS', direction: 'Outbound', content: 'Follow-up message to Sarah Johnson.' },
-          { lead_id: '8b27a7b3-9f1a-4e2b-8c99-2d758a6f4e1c', channel: 'Email', direction: 'Inbound', content: 'Received email from Michael Brown with questions.' }
-        ])
-        logger.info('Created and Seeded Messages table');
+        logger.info('Created Messages table');
 
         // --- AISettings Table ---
-        const { error: aiSettingsError } = await supabase.schema.createTable('AISettings', { ifNotExists: true });
+        const { error: aiSettingsError } = await supabase.schema
+            .createTable('AISettings', (table) => {
+                table.uuid('id').primaryKey().defaultTo(supabase.raw('uuid_generate_v4()'));
+                table.enum('channel', ['WhatsApp', 'SMS', 'Email', 'Call']).notNullable();
+                table.text('context');
+                table.enum('tone', ['Formal', 'Informal', 'Friendly', 'Professional']).defaultTo('Professional');
+                table.enum('style', ['Concise', 'Detailed', 'Short', 'Medium']).defaultTo('Concise');
+                table.timestamp('updated_at').defaultTo(supabase.fn('now')());
+            });
 
-        if(aiSettingsError) throw aiSettingsError;
-        await supabase.from('AISettings')
-        .insert([
-          { channel: 'WhatsApp', context: 'You are a helpful and friendly AI assistant for BusinessOn.ai. Your primary goal is to qualify leads and book appointments for consultations.', tone: 'Friendly', style: 'Concise' },
-          { channel: 'SMS', context: 'You are a concise and professional AI assistant for BusinessOn.ai. Focus on scheduling appointments and providing brief information.', tone: 'Professional', style: 'Short' },
-          { channel: 'Email', context: 'You are a formal and detailed AI assistant for BusinessOn.ai. Provide comprehensive information and assist with scheduling consultations.', tone: 'Formal', style: 'Detailed' },
-          { channel: 'Call', context: 'You are a helpful and efficient AI phone agent for BusinessOn.ai.  Your main task is to qualify leads and book appointments.', tone: 'Professional', style: 'Concise' }
+        if (aiSettingsError) throw aiSettingsError;
+        logger.info('Created AISettings table');
 
-        ]);
-          logger.info('Created and Seeded AISettings table');
         logger.info('Database migration completed successfully.');
 
     } catch (error: any) {
