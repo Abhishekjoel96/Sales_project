@@ -2,7 +2,7 @@
 import OpenAI from 'openai';
 import config from '../config/config';
 import logger from '../utils/logger';
-import { ChatCompletionCreateParamsNonStreaming } from 'openai/resources';
+import { ChatCompletionCreateParamsNonStreaming, ChatCompletionMessageParam } from 'openai/resources';
 
 class OpenAIService {
   private openai: OpenAI;
