@@ -27,7 +27,7 @@ const createServer = (): HttpServer => {
     app.use(cors(corsOptions));
     // Middleware
     app.use(express.json()); // Parse JSON request bodies
-    app.use(bodyParser.urlencoded({ extended: true }));
+    app.use(bodyParser.urlencoded({ extended: true })); //For Twilio and mailgun webhook
     // Apply the rate limiting middleware to all requests
     app.use(apiLimiter);
 
@@ -44,9 +44,9 @@ const createServer = (): HttpServer => {
     // Centralized error handling
     app.use(errorHandler);
 
-      const server = new HttpServer(app); // Create an HttpServer
+    const server = new HttpServer(app); // Create an HttpServer
     const io = setupWebSockets(server); // Set up WebSockets
-     app.set('io', io);  // Store the 'io' instance in the app object
+    app.set('io', io);  // Store the 'io' instance in the app object. VERY IMPORTANT
 
 
 
