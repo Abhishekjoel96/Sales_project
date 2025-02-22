@@ -5,6 +5,7 @@ import { CallLog, createCallLog, updateCallLog } from '../models/CallLog';
 import logger from '../utils/logger';
 import { updateLead } from '../models/Lead';
 import supabase from '../utils/db';
+import { format } from 'date-fns';
 
 
 class TwilioService {
@@ -33,7 +34,7 @@ class TwilioService {
       });
 
       // Create a call log entry
-      const callLogData: Omit<CallLog, 'id' | 'timestamp'> = { // Explicit type
+      const callLogData: Omit<CallLog, 'id' | 'timestamp'> = {
         lead_id: leadId,
         twilio_call_sid: call.sid,
         status: 'initiated', // Initial status
