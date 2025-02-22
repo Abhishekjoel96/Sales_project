@@ -1,8 +1,7 @@
 // backend/src/services/leadService.ts
-import { createLead, deleteLead, getLeadById, getLeads, updateLead, Lead } from '../models/Lead';
-import { createMessage } from '../models/Message';
+import { createLead, deleteLead, getLeadById, getLeads, updateLead, Lead, getLeadByPhoneNumber, getLeadByEmail } from '../models/Lead';
 import logger from '../utils/logger';
-import { parse } from 'csv-parse/sync'; // Synchronous version
+import { parse } from 'csv-parse/sync'; // Import the SYNCHRONOUS version
 import { Readable } from 'stream';
 
 export const createNewLead = async (leadData: Omit<Lead, 'id' | 'created_at' | 'updated_at'>): Promise<Lead> => {
@@ -35,54 +34,40 @@ export const updateLeadStatusBasedOnInteraction = async (leadId: string, channel
     }
     // Further logic can be added here
 };
-//Corrected Exported function names
-export const getLeadByPhone = getLeadById;
-export const getLeadByMail = getLeadById;
+
+export const getLeadByPhone = async (phoneNumber: string): Promise<Lead | null> => {
+  return getLeadByPhoneNumber(phoneNumber)
+}
+export const getLeadByMail = async(email: string) : Promise<Lead | null> => {
+  return getLeadByEmail(email);
+}
 // New function to handle lead import
-export const importLeads = async(file: Express.Multer.File): Promise<number> => {
-    return new Promise((resolve, reject) => {
-        const results: Omit<Lead, 'id' | 'created_at' | 'updated_at'>[] = [];
-        const parser = parse({
-            columns: true,
-            skip_empty_lines: true,
-        });
+export const importLeads = async(file: Express.Multer.File): Promise<number> => { //Corrected type
+        let createdCount = 0;
+        try {
+            // Convert the buffer to a string BEFORE passing to csv-parse
+            const fileContent = file.buffer.toString('utf8'); // Or 'latin1', etc., depending on the file encoding
+            const records: Omit<Lead, 'id' | 'created_at' | 'updated_at'>[] = parse(fileContent, {
+                columns: true,  // Use headers from the first row
+                skip_empty_lines: true,
+                trim: true, // Trim whitespace
+            });
 
-        parser.on('readable', () => {
-            let record;
-            while ((record = parser.read()) !== null) {
-                results.push(record);
-            }
-        });
 
-        parser.on('error', (err) => {
-            reject(err); // Reject the promise on parsing error
-        });
-
-        parser.on('end', async () => {
-            let createdCount = 0;
-            // Use Promise.all to handle multiple async operations
-            const createPromises = results.map(async (leadData) => {
+            for (const leadData of records) {
             try{
                 await createLead(leadData);
                 createdCount++;
 
             } catch(error: any){
-                //Individual lead creation failed.
+                //Individual lead creation failed. Log and continue.
                 logger.warn(`Failed to create lead ${leadData.name}: ${error.message}`)
             }
-            })
+          }
+          return createdCount;
 
-            try {
-                await Promise.all(createPromises); // Wait for all lead creations
-                resolve(createdCount); // Resolve with the number created leads
-              } catch (error) {
-                reject(error); // Reject if *any* of the createLead calls fail
-              }
-        });
-         // Create a stream from the buffer and pipe it to the parser
-        const stream = new Readable();
-        stream.push(file.buffer);
-        stream.push(null);  // Signal the end of the stream
-        stream.pipe(parser)
-    })
+        } catch (error: any) { // Add type annotation here
+            logger.error(`Error importing leads: ${error}`);
+            throw new Error('Failed to import leads: ' + error.message); // Or handle more gracefully
+        }
 }
