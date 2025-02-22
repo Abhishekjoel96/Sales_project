@@ -1,5 +1,4 @@
 // backend/src/services/appointmentService.ts
-// services/appointmentService.ts
 import {
     createAppointment,
     getAppointments,
@@ -51,7 +50,7 @@ import {
 
 
   // Centralized double-booking check
-  const checkDoubleBooking = async (leadId: string, dateTimeString: string, currentAppointmentId?: string) => {
+const checkDoubleBooking = async (leadId: string, dateTimeString: string, currentAppointmentId?: string) => {
     const appointments = await getAppointments();
 
     const newDateTime = parseISO(dateTimeString);
