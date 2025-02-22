@@ -4,6 +4,6 @@ import * as twimlController from '../controllers/twimlController';
 
 const router = express.Router();
 
-router.post('/', twimlController.getTwiml); // Use POST to match Twilio's behavior
+router.post('/', twimlController.getTwiml); // Twilio initially makes get request
 
 export default router;
