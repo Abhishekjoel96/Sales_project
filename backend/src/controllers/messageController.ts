@@ -4,7 +4,7 @@ import { Request, Response, NextFunction } from 'express';
 import * as messageService from '../services/messageService';
 import logger from '../utils/logger';
 import  masterAgentService  from '../services/masterAgentService'
-import { getLeadByPhoneNumber, getLeadByEmail } from '../services/leadService'; // CORRECT IMPORTS
+import { getLeadByPhone, getLeadByMail } from '../services/leadService'; // CORRECT IMPORTS
 import * as leadService from '../services/leadService';
 
 
@@ -38,7 +38,7 @@ export const receive = async (req: Request, res: Response, next: NextFunction) =
             channel = req.body.To.startsWith('whatsapp') ? 'WhatsApp' : 'SMS';
 
             const from = req.body.From.replace('whatsapp:', '').replace('+', '');
-            let lead = await getLeadByPhoneNumber(from); // Corrected function call
+            let lead = await getLeadByPhone(from); // Corrected function call
 
             if(!lead){
                 // Create a new lead
@@ -59,7 +59,7 @@ export const receive = async (req: Request, res: Response, next: NextFunction) =
         } else if (req.body.sender) { // Mailgun
             channel = 'Email';
             const email = req.body.sender;
-            const lead = await getLeadByEmail(email); // Corrected function call
+            const lead = await getLeadByMail(email); // Corrected function call
              if (!lead) {
                 logger.warn(`Received email from unknown sender: ${email}`);
                 return res.status(200).send('Unknown sender - no lead created'); // Return 200 OK
