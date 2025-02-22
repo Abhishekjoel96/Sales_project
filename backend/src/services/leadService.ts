@@ -37,14 +37,12 @@ export const updateLeadStatusBasedOnInteraction = async (leadId: string, channel
 };
 
 export const getLeadByPhone = async (phoneNumber: string): Promise<Lead | null> => {
-    return getLeadByPhoneNumber(phoneNumber);
+  return getLeadByPhoneNumber(phoneNumber)
 }
-export const getLeadByMail = async (email:string): Promise<Lead | null> => {
-    return getLeadByEmail(email)
+export const getLeadByMail = async (email: string): Promise<Lead | null> => {
+    return getLeadByEmail(email);
 }
-
 // New function to handle lead import
-
 export const importLeads = async(file: Express.Multer.File): Promise<number> => {
     return new Promise((resolve, reject) => {
         const results: Omit<Lead, 'id' | 'created_at' | 'updated_at'>[] = [];
