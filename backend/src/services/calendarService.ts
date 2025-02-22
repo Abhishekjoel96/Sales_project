@@ -59,7 +59,7 @@ const sendReminder = async (appointment: Appointment) => {
 export const scheduleReminders = async () => {
     const now = new Date();
 
-    for (const hours of config.reminderTimes) {
+    for (const hours of config.reminderTimes) { // Iterate through array
         const reminderTime = subHours(now, hours);
         const reminderTimeString = reminderTime.toISOString();
 
@@ -79,9 +79,10 @@ export const scheduleReminders = async () => {
         const appointments: Appointment[] = data as Appointment[];
 
         for (const appointment of appointments) {
-            await sendReminder(appointment);
+            await sendReminder(appointment); // Send for each appointment
         }
     }
 };
 // Set interval for reminders, runs every 5 minutes or 1 hour
 setInterval(scheduleReminders, 5 * 60 * 1000); // Every 5 minutes for testing
+// setInterval(scheduleReminders, 60 * 60 * 1000); //Every hour for production
