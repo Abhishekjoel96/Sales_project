@@ -51,7 +51,8 @@ export const transcribeCall = async (callLogId: string): Promise<CallLog> => {
         const summary = await openaiService.generateText(prompt, 'gpt-3.5-turbo', settings.context || undefined);
 
         const updatedCallLog = await updateCallLog(callLogId, { transcription, summary });
-        await updateLead(callLog.lead_id, {status: 'Warm'}) //Updating the lead to warm
+          //Update Lead Status After transcript
+          await updateLead(callLog.lead_id, {status: 'Warm'}) //Updating the lead to warm
         return updatedCallLog;
 
       } catch (error:any) {
