@@ -13,8 +13,8 @@ export default {
     mailgunDomain: process.env.MAILGUN_DOMAIN!,
     mailgunFromEmail: process.env.MAILGUN_FROM_EMAIL!,
     openaiApiKey: process.env.OPENAI_API_KEY!,
-    outOfOfficeStart: '09:00',
-    outOfOfficeEnd: '17:00',
-    reminderTimes: [24, 1],
-    apiKey: process.env.API_KEY! //Required for authentication
+    outOfOfficeStart: '09:00', // Default out-of-office start time
+    outOfOfficeEnd: '17:00',   // Default out-of-office end time
+    reminderTimes: [24, 1],     // Reminder times in hours before appointment
+    apiKey: process.env.API_KEY! // Required for authentication
 };
