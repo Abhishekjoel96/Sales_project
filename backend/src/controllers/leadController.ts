@@ -1,13 +1,12 @@
-
-//backend/src/controllers/leadController.ts
-
+// backend/src/controllers/leadController.ts
 import { Request, Response, NextFunction } from 'express';
 import * as leadService from '../services/leadService';
 import { Lead } from '../models/Lead';
 import logger from '../utils/logger';
 import  masterAgentService  from '../services/masterAgentService'
-import multer from 'multer';
+import multer from 'multer';  // Import multer
 const upload = multer(); //Handles the file.
+
 
 export const createLead = async (req: Request, res: Response, next: NextFunction) => {
   try {
