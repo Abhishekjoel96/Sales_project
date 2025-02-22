@@ -60,7 +60,7 @@ class MasterAgentService {
     }
 
     private calculateAICallsToday(callLogs: CallLog[]): { total: number; incoming: number; outgoing: number } {
-        const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+        const today = new Date().toISOString().split('T')[0]; // Format: YYYY-MM-DD
         let total = 0;
         let incoming = 0;
         let outgoing = 0;
