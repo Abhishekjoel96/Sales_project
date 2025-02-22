@@ -1,4 +1,6 @@
-// backend/src/controllers/leadController.ts
+
+//backend/src/controllers/leadController.ts
+
 import { Request, Response, NextFunction } from 'express';
 import * as leadService from '../services/leadService';
 import { Lead } from '../models/Lead';
